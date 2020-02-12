@@ -75,20 +75,31 @@ const deletePerson: PartialState = {
 };
 
 const state = mergeState(initialState, addPerson);
+
+// State is unchanged when adding same person again
 assert.equal(mergeState(state, addPerson), state);
+
+// State is changed when updating name of one person
 assert.notEqual(mergeState(state, updatePerson), state);
 assert.equal(mergeState(state, updatePerson).people['2'].name, 'Jens');
-assert.ok(R.equals(mergeState(state, deletePerson), {
-  people: {
-    '1': {
-      id: '1',
-      name: 'Lars',
-      address: {
-        street: 'Hovedgaden',
-        zip: 3460,
+
+// Substate of other people unchanged when updating person
+assert.equal(mergeState(state, updatePerson).people['1'], state.people['1']);
+
+// Id of deleted people are not removed
+assert.ok(
+  R.equals(mergeState(state, deletePerson), {
+    people: {
+      '1': {
+        id: '1',
+        name: 'Lars',
+        address: {
+          street: 'Hovedgaden',
+          zip: 3460,
+        },
       },
+      '2': null,
     },
-    '2': null
-  },
-}));
+  })
+);
 console.log('done');
